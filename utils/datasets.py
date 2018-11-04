@@ -1,20 +1,11 @@
 import glob
-import random
 import os
 import numpy as np
 
 import torch
-
 from torch.utils.data import Dataset
 from PIL import Image
 import torchvision.transforms as transforms
-
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-
-from skimage.transform import resize
-
-import sys
 
 class ImageFolder(Dataset):
     def __init__(self, folder_path, img_size=416):
@@ -44,7 +35,6 @@ class ImageFolder(Dataset):
 
     def __len__(self):
         return len(self.files)
-
 
 class ListDataset(Dataset):
     def __init__(self, list_path, img_size=416):
