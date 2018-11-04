@@ -1,9 +1,23 @@
 import math
 import torch
 import numpy as np
+import cv2
 
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+
+def resize(img, new_width, new_height):
+    old_width = img.shape[1]
+    old_height = img.shape[0]
+    if new_width is not None and new_height is None:
+        new_height = int(old_height * new_width / old_width)
+    elif new_width is None and new_height is not None:
+        new_width = int(old_width * new_height / old_height)
+    elif new_width is None and new_height is None:
+        raise Exception('Neither width nor height is specified.')
+    if new_width < old_width:
+        rst = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+    else:
+        rst = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+    return rst
 
 
 def load_classes(path):

@@ -6,6 +6,8 @@ build
 dist
 output
 data/coco
+data/images
+data/videos
 backup
 weights/*.weights
 __pycache__

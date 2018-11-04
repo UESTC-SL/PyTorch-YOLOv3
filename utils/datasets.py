@@ -4,8 +4,10 @@ import numpy as np
 
 import torch
 from torch.utils.data import Dataset
-from PIL import Image
-import torchvision.transforms as transforms
+import cv2
+
+from utils.utils import resize
+
 
 class ImageFolder(Dataset):
     def __init__(self, folder_path, img_size=416):
@@ -15,18 +17,19 @@ class ImageFolder(Dataset):
     def __getitem__(self, index):
         img_path = self.files[index % len(self.files)]
         # Extract image
-        img = np.array(Image.open(img_path))
-        h, w, _ = img.shape
-        dim_diff = np.abs(h - w)
-        # Upper (left) and lower (right) padding
-        pad1, pad2 = dim_diff // 2, dim_diff - dim_diff // 2
-        # Determine padding
-        pad = ((pad1, pad2), (0, 0), (0, 0)) if h <= w else ((0, 0), (pad1, pad2), (0, 0))
-        # Add padding
-        input_img = np.pad(img, pad, 'constant', constant_values=127.5) / 255.
+        img = cv2.imread(img_path)
+        h, w = img.shape[:2]
+        pad = np.abs(h - w) // 2
+        #TODO: [Optimize] scale first, pad later
+        if h <= w:
+            input_img = 255. * np.ones((w, w, 3), dtype=np.float)
+            input_img[pad:h+pad,:,:] = img
+        else:
+            input_img = 255. * np.ones((h, h, 3), dtype=np.float)
+            input_img[:,pad:w+pad,:] = img
+        input_img *= 1./255.
         # Resize and normalize
-        input_img = resize(input_img, (*self.img_shape, 3), mode='reflect')
-        # Channels-first
+        input_img = resize(input_img, self.img_shape[0], self.img_shape[1])
         input_img = np.transpose(input_img, (2, 0, 1))
         # As pytorch tensor
         input_img = torch.from_numpy(input_img).float()
